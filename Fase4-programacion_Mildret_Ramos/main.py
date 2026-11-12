@@ -36,8 +36,8 @@ class Cliente(EntidadSistema):
     def __init__(self, cedula, nombre, telefono, correo):
         self.cedula = self._validar_cedula(cedula)
         self.nombre = self._validar_nombre(nombre)
-        self.telefono = telefono
-        self.correo = correo
+        self.telefono = self._validar_telefono(telefono)
+        self.correo = self._validar_correo(correo)
 
     def _validar_cedula(self, cedula):
         if not cedula or not str(cedula).isdigit() or len(str(cedula)) < 6:
@@ -50,6 +50,35 @@ class Cliente(EntidadSistema):
             SistemaLogs.registrar_log(f"Intento de registrar nombre inválido: {nombre}", "ERROR")
             raise ErrorDatoInvalido("El nombre del cliente es demasiado corto o inválido.")
         return nombre.strip()
+
+    def _validar_telefono(self, telefono):
+        telefono = str(telefono).strip()
+
+        if not telefono.isdigit() or len(telefono) != 10:
+            SistemaLogs.registrar_log(
+                f"Telefono invalido: {telefono}", "ERROR"
+            )
+            raise ErrorDatoInvalido(
+                "El telefono debe contener exactamente 10 digitos."
+            )
+
+        return telefono
+
+    def _validar_correo(self, correo):
+        if (
+            not isinstance(correo, str)
+            or "@" not in correo
+            or "." not in correo.split("@")[-1]
+            or " " in correo
+        ):
+            SistemaLogs.registrar_log(
+                f"Correo invalido: {correo}", "ERROR"
+            )
+            raise ErrorDatoInvalido(
+                "El correo electronico no tiene un formato valido."
+            )
+
+        return correo
 
     def mostrar_detalle(self):
         return f"Cliente: {self.nombre} (Cédula: {self.cedula})"
@@ -211,3 +240,27 @@ def ejecutar_simulacion():
 
 if __name__ == "__main__":
     ejecutar_simulacion()
+
+    print("\n--- PRUEBAS DE VALIDACION DE CONTACTO ---")
+
+    # PRUEBA 1: TELEFONO INVALIDO
+    try:
+        Cliente(
+            "22334455",
+            "Juan Perez",
+            "12345",
+            "juan@gmail.com"
+        )
+    except ErrorDatoInvalido as e:
+        print(f"[ERROR CONTROLADO] {e}")
+
+    # PRUEBA 2: CORREO INVALIDO
+    try:
+        Cliente(
+            "88776655",
+            "Carlos Ruiz",
+            "3100000000",
+            "correo-invalido"
+        )
+    except ErrorDatoInvalido as e:
+        print(f"[ERROR CONTROLADO] {e}")
