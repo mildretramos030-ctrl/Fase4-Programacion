@@ -6,7 +6,7 @@ from datetime import datetime
 # ==========================================
 class SistemaLogs:
     @staticmethod
-    def registrar_log(mensaje, tipo="INFO"):
+    def registro_log(mensaje, tipo="INFO"):
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         log_entry = f"[{timestamp}] [{tipo}] {mensaje}\n"
         try:
@@ -179,11 +179,12 @@ class Reserva:
         finally:
             print("[INFO] Operación de confirmación finalizada (Bloque Finally ejecutado).\n")
 
-    def cancelar_reserva(self):
+  def cancelar_reserva(self):
+        if self.estado=="Cancelada":  
+            raise ErrorReservaNoPermitida("La reserva ya se encuentra cancelada previamente.")
         self.estado = "Cancelada"
         SistemaLogs.registrar_log(f"Reserva cancelada para el cliente {self.cliente.nombre}")
         print(f"[INFO] La reserva del cliente {self.cliente.nombre} ha sido cancelada.")
-
 # ==========================================
 # SIMULACIÓN DE LAS 10 OPERACIONES
 # ==========================================
